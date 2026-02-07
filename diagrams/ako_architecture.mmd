@@ -1,0 +1,20 @@
+graph TD
+    A[High-Level Kernel Specification] --> B(LLM Agent - KernelGenerator)
+    
+    subgraph Agentic Loop
+        B -- Generates TileLang Code --> C{AMD ROCm Toolchain}
+        C -- Compiles & Deploys --> D[Executable Kernel on MI300X]
+        D -- Executes & Profiles --> E(ROCm Profiler - rocprof)
+        E -- Raw Metrics --> F(Performance Analysis & AITER Comparison)
+        F -- Optimization Feedback & Reward Signal --> B
+    end
+
+    G[AITER Baseline Library] -. Gold Standard Benchmarks .-> F
+
+    style A fill:#fde7f3,stroke:#333,stroke-width:2px,color:#111
+    style B fill:#e6ecff,stroke:#333,stroke-width:2px,color:#111
+    style C fill:#eef2ff,stroke:#333,stroke-width:2px,color:#111
+    style D fill:#eaf7ea,stroke:#333,stroke-width:2px,color:#111
+    style E fill:#ffecec,stroke:#333,stroke-width:2px,color:#111
+    style F fill:#edf9ed,stroke:#333,stroke-width:2px,color:#111
+    style G fill:#fff4dd,stroke:#333,stroke-width:2px,color:#111
