@@ -1,9 +1,10 @@
 
-# Project AKCD: Agentic Kernel Co-Design for High-Performance Inference on AMD Instinct
+# AKO: Agentic Kernel Optimization for High-Performance Inference on AMD Instinct
 
 ## Overview
 
-AKCD (Agentic Kernel Co-Design) is an autonomous system for optimizing GPU kernel performance on AMD Instinct hardware. By leveraging Agentic AI and Large Language Models (LLMs), AKCD automates the generation, profiling, and refinement of GPU kernels—specifically using AMD's TileLang domain-specific language—targeting the CDNA-3/4 architecture (MI300/350 series).
+
+AKO (Agentic Kernel Optimization) is an autonomous system for optimizing GPU kernel performance on AMD Instinct hardware. By leveraging Agentic AI and Large Language Models (LLMs), AKO automates the generation, profiling, and refinement of GPU kernels—specifically using AMD's TileLang domain-specific language—targeting the CDNA-3/4 architecture (MI300/350 series).
 
 The core innovation is a closed "Compile-Profile-Refine" agentic loop, moving beyond manual tuning or brute-force grid searches. The system is designed to unlock the full potential of AMD Instinct GPUs for high-performance AI inference workloads.
 
@@ -20,7 +21,7 @@ This loop continues iteratively, enabling the agent to autonomously explore the 
 
 ## Problem Space
 
-Current inference libraries (e.g., vLLM, SGLang) rely on hand-tuned or basic autotuned kernels. TileLang has demonstrated up to 5x speedups over Triton on AMD hardware, but the optimization space is vast and complex. AKCD's agentic approach enables:
+Current inference libraries (e.g., vLLM, SGLang) rely on hand-tuned or basic autotuned kernels. TileLang has demonstrated up to 5x speedups over Triton on AMD hardware, but the optimization space is vast and complex. AKO's agentic approach enables:
 
 - Automated navigation of kernel design choices (tiling, LDS usage, MFMA scheduling)
 - Hardware-aware code generation and profiling
@@ -42,18 +43,19 @@ Current inference libraries (e.g., vLLM, SGLang) rely on hand-tuned or basic aut
 ## Project Structure
 
 ```
-AKCD_Project/
+AKO_Project/
 ├── src/
 │   ├── agentic_loop.py           # Orchestrates the main optimization loop
 │   ├── kernel_generator.py       # LLM agent for kernel code generation
 │   ├── profiling_feedback.py     # Performance metric analysis from rocprof
 │   └── hardware_interface.py     # AMD hardware interaction (compilation, execution, profiling)
 ├── diagrams/
-│   └── akcd_architecture.mmd     # Mermaid diagram of system architecture
+│   └── ako_architecture.mmd      # Mermaid diagram of system architecture
 └── README.md                     # This document
 ```
 
 ## System Architecture Diagram
+
 
 Below is the core system architecture, visualized in Mermaid:
 
@@ -79,4 +81,4 @@ graph TD
 
 ---
 
-**To view or edit the diagram:** The `akcd_architecture.mmd` file can be opened in any [Mermaid](https://mermaid.js.org/) editor (e.g., [Mermaid Live Editor](https://mermaid.live/)), or viewed directly on platforms like GitHub that support `.mmd` rendering.
+**To view or edit the diagram:** The `ako_architecture.mmd` file can be opened in any [Mermaid](https://mermaid.js.org/) editor (e.g., [Mermaid Live Editor](https://mermaid.live/)), or viewed directly on platforms like GitHub that support `.mmd` rendering.
