@@ -8,6 +8,36 @@ AKO (Agentic Kernel Optimization) is an autonomous system for optimizing GPU ker
 
 The core innovation is a closed "Compile-Profile-Refine" agentic loop, moving beyond manual tuning or brute-force grid searches. The system is designed to unlock the full potential of AMD Instinct GPUs for high-performance AI inference workloads.
 
+## Status: first real measurements (Nov 2026)
+
+The original `src/` loop is a design prototype: its compile and profiling steps are **simulated** (random metrics). To get real numbers, [`notebooks/ako_triton_colab.ipynb`](notebooks/ako_triton_colab.ipynb) runs the loop end to end on a real GPU:
+
+- **Generate:** an LLM (Claude Sonnet via OpenRouter) writes the kernel in **Triton**. Triton targets both NVIDIA and AMD ROCm, so the harness is portable to MI300X.
+- **Verify:** every candidate runs in its own process and is checked against PyTorch with `torch.allclose`. Kernels that call the PyTorch op instead of doing the work themselves are rejected.
+- **Profile:** latency with `triton.testing.do_bench`, plus achieved GB/s or TFLOPS.
+- **Decide:** **Jev** (a System One decision model) picks the next move: tune the launch config, improve memory access, restructure the algorithm, or stop. A **random-move** run is the ablation.
+
+**Results** on a Tesla T4 (Colab), 6 iterations per run, one run per policy:
+
+| Task | Policy | Valid kernels | PyTorch | Best | Speedup | Notes |
+|---|---|---|---|---|---|---|
+| Softmax 4096×2048 fp32 | Jev | 5/6 | 0.322 ms | **0.279 ms** | **1.16×** | 241 GB/s, about 75% of the T4's ~320 GB/s peak |
+| Softmax 4096×2048 fp32 | Random | 6/6 | 0.322 ms | 0.283 ms | 1.14× | 237 GB/s |
+| Matmul 2048³ fp16 | Jev | 5/6 | 0.950 ms | 5.28 ms | 0.18× | 3.3 TFLOPS vs cuBLAS ~18 |
+| Matmul 2048³ fp16 | Random | 5/6 | 0.950 ms | 11.6 ms | 0.08× | 1.5 TFLOPS |
+
+![Best speedup per iteration](results/ako_speedup.png)
+
+**What this shows**
+- **Softmax (memory-bound):** the loop beat PyTorch within two iterations and plateaued near the bandwidth roofline. The remaining gains are small because the kernel is limited by memory, not compute.
+- **Matmul (compute-bound):** far behind cuBLAS. Even a textbook tiled `tl.dot` kernel measured 312 ms on the first try, so tensor cores are likely not being used well on this Turing GPU with this Triton build. That needs profiling before drawing conclusions. The next test is an Ampere or AMD MI300X GPU.
+- **The correctness gate mattered:** it caught a softmax kernel that was fast but wrong (max error 0.046) and two matmul candidates that hung, which the subprocess timeout contained.
+- **Jev vs random:** Jev's run reached slightly better kernels, but with one run per arm that's within noise. Jev's confidence was low (0.24–0.53), and it chose "tune launch config" every time. Multiple seeds are needed before claiming Jev helps.
+
+Raw data: [`results/ako_results.csv`](results/ako_results.csv) (every attempt), [`results/ako_summary.csv`](results/ako_summary.csv), and the winning kernels in [`results/kernels/`](results/kernels/).
+
+**Next:** run on an AMD MI300X (ROCm), use 3+ seeds per policy, add a rocprof/Nsight profile of the matmul gap, and feed hardware counters to Jev instead of latency alone.
+
 ## System Workflow
 
 1. **High-Level Specification:** The process begins with a high-level kernel specification (e.g., matrix multiplication or other AI-relevant GPU tasks).

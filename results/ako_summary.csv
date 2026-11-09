@@ -1,0 +1,5 @@
+task,policy,attempts,valid_%,baseline_ms,best_ms,speedup_vs_torch,iter_of_best,best_GB/s,best_TFLOPS,stopped_early_at
+softmax,jev,6,83,0.3222,0.2787,1.16,5,241.0,,
+softmax,random,6,100,0.3222,0.2831,1.14,6,237.0,,
+matmul,jev,6,83,0.9504,5.2753,0.18,4,,3.3,
+matmul,random,6,83,0.9504,11.6358,0.08,5,,1.5,
